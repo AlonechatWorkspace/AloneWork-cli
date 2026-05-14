@@ -81,15 +81,25 @@ export function DocumentEditor({ file, onChange }: DocumentEditorProps) {
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        table: false,
+      }),
       Underline,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       Highlight.configure({ multicolor: true }),
       Placeholder.configure({ placeholder: "开始输入内容..." }),
       Link.configure({ openOnClick: false }),
+      Image,
+      Table.configure({
+        resizable: true,
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     content: getInitialContent(file.content),
     editorProps: {
@@ -153,6 +163,23 @@ export function DocumentEditor({ file, onChange }: DocumentEditorProps) {
     URL.revokeObjectURL(url);
   }, [editor, title]);
 
+  const handleInsertImage = useCallback(() => {
+    imageInputRef.current?.click();
+  }, []);
+
+  const handleImageFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && editor) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const src = event.target?.result as string;
+        editor.chain().focus().setImage({ src }).run();
+      };
+      reader.readAsDataURL(file);
+    }
+    e.target.value = "";
+  }, [editor]);
+
   useEffect(() => {
     return () => {
       if (saveTimeoutRef.current) {
@@ -171,6 +198,14 @@ export function DocumentEditor({ file, onChange }: DocumentEditorProps) {
 
   return (
     <div className="flex flex-col h-full bg-[var(--bg-secondary)]">
+      <input
+        ref={imageInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleImageFileChange}
+      />
+
       {/* LibreOffice Style Title Bar */}
       <div className="flex items-center justify-between h-10 px-4 bg-[var(--bg-primary)] border-b border-[var(--border-light)]">
         <div className="flex items-center gap-2">
@@ -178,7 +213,7 @@ export function DocumentEditor({ file, onChange }: DocumentEditorProps) {
           {editor.isDirty && <span className="text-xs text-[var(--text-muted)]">● 已修改</span>}
         </div>
         <div className="flex items-center gap-1">
-          <button className="p-1.5 rounded hover:bg-[var(--bg-hover)]" title="打印">
+          <button onClick={() => window.print()} className="p-1.5 rounded hover:bg-[var(--bg-hover)]" title="打印">
             <Printer className="w-4 h-4" />
           </button>
           <button onClick={handleExport} className="p-1.5 rounded hover:bg-[var(--bg-hover)]" title="导出">
@@ -188,7 +223,12 @@ export function DocumentEditor({ file, onChange }: DocumentEditorProps) {
       </div>
 
       {/* LibreOffice Style Ribbon */}
-      <RibbonToolbar editor={editor} activeTab={activeTab} onTabChange={setActiveTab} />
+      <RibbonToolbar
+        editor={editor}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onInsertImage={handleInsertImage}
+      />
 
       {/* Editor Content */}
       <div className="flex-1 overflow-auto py-8">
@@ -234,20 +274,69 @@ interface RibbonToolbarProps {
   editor: ReturnType<typeof useEditor>;
   activeTab: string;
   onTabChange: (tab: string) => void;
+  onInsertImage: () => void;
 }
 
-function RibbonToolbar({ editor, activeTab, onTabChange }: RibbonToolbarProps) {
+function RibbonToolbar({ editor, activeTab, onTabChange, onInsertImage }: RibbonToolbarProps) {
+  const [showTextColorPicker, setShowTextColorPicker] = useState(false);
+  const [showBgColorPicker, setShowBgColorPicker] = useState(false);
+  const [showLinkDialog, setShowLinkDialog] = useState(false);
+  const [linkUrl, setLinkUrl] = useState("");
+  const colorPickerRef = useRef<HTMLDivElement>(null);
+
+  const fontColors = [
+    "#000000", "#C00000", "#FF0000", "#FFC000", "#FFFF00",
+    "#92D050", "#00B050", "#00B0F0", "#0070C0", "#002060",
+    "#7030A0", "#ffffff",
+  ];
+
+  const bgColors = [
+    "#ffffff", "#ff0000", "#ffc000", "#ffff00", "#92d050",
+    "#00b050", "#00b0f0", "#0070c0", "#002060", "#7030a0",
+    "#f2f2f2", "#d9d9d9",
+  ];
+
+  const handleInsertLink = () => {
+    if (linkUrl && editor) {
+      editor.chain().focus().setLink({ href: linkUrl }).run();
+      setLinkUrl("");
+      setShowLinkDialog(false);
+    }
+  };
+
+  const handleInsertTable = (rows: number, cols: number) => {
+    if (editor) {
+      editor
+        .chain()
+        .focus()
+        .insertTable({ rows, cols, withHeaderRow: true })
+        .run();
+    }
+  };
+
+  const setTextColor = (color: string) => {
+    if (editor) {
+      editor.chain().focus().setColor(color).run();
+      setShowTextColorPicker(false);
+    }
+  };
+
+  const setBgColor = (color: string) => {
+    if (editor) {
+      editor.chain().focus().toggleHighlight({ color }).run();
+      setShowBgColorPicker(false);
+    }
+  };
+
   const tabs = [
     { id: "home", label: "开始" },
     { id: "insert", label: "插入" },
     { id: "layout", label: "布局" },
-    { id: "review", label: "审阅" },
     { id: "view", label: "视图" },
   ];
 
   return (
     <div className="bg-[var(--ribbon-bg)] border-b border-[var(--ribbon-border)]">
-      {/* Tab Bar */}
       <div className="flex border-b border-[var(--ribbon-border)]">
         {tabs.map((tab) => (
           <button
@@ -265,18 +354,26 @@ function RibbonToolbar({ editor, activeTab, onTabChange }: RibbonToolbarProps) {
         ))}
       </div>
 
-      {/* Ribbon Content */}
       <div className="flex items-center gap-6 p-2 bg-[var(--ribbon-bg)] min-h-[56px]">
         {activeTab === "home" && (
           <>
-            {/* Clipboard Group */}
-            <RibbonGroup label="剪贴板">
-              <RibbonButton icon={<Clipboard className="w-4 h-4" />} label="粘贴" />
-              <RibbonButton icon={<Copy className="w-4 h-4" />} label="复制" />
-              <RibbonButton icon={<Trash2 className="w-4 h-4" />} label="删除" />
+            <RibbonGroup label="历史">
+              <div className="flex items-center gap-0.5">
+                <RibbonButton
+                  icon={<Undo className="w-4 h-4" />}
+                  label="撤销"
+                  disabled={!editor?.can().undo()}
+                  onClick={() => editor?.chain().focus().undo().run()}
+                />
+                <RibbonButton
+                  icon={<Redo className="w-4 h-4" />}
+                  label="重做"
+                  disabled={!editor?.can().redo()}
+                  onClick={() => editor?.chain().focus().redo().run()}
+                />
+              </div>
             </RibbonGroup>
 
-            {/* Font Group */}
             <RibbonGroup label="字体">
               <div className="flex items-center gap-1">
                 <select
@@ -335,16 +432,70 @@ function RibbonToolbar({ editor, activeTab, onTabChange }: RibbonToolbarProps) {
                   active={editor?.isActive("strike")}
                   onClick={() => editor?.chain().focus().toggleStrike().run()}
                 />
+                <div className="relative">
+                  <RibbonToggleButton
+                    icon={<Palette className="w-4 h-4" />}
+                    label="字体颜色"
+                    active={showTextColorPicker}
+                    onClick={() => setShowTextColorPicker(!showTextColorPicker)}
+                  />
+                  {showTextColorPicker && (
+                    <div
+                      ref={colorPickerRef}
+                      className="absolute top-full left-0 mt-1 p-2 bg-white rounded shadow-lg border border-[var(--border-light)] z-50"
+                    >
+                      <div className="grid grid-cols-4 gap-1">
+                        {fontColors.map((color) => (
+                          <button
+                            key={color}
+                            onClick={() => setTextColor(color)}
+                            className="w-6 h-6 rounded border border-[var(--border-light)] hover:scale-110 transition-transform"
+                            style={{ backgroundColor: color }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="relative">
+                  <RibbonToggleButton
+                    icon={<Highlighter className="w-4 h-4" />}
+                    label="背景色"
+                    active={showBgColorPicker}
+                    onClick={() => setShowBgColorPicker(!showBgColorPicker)}
+                  />
+                  {showBgColorPicker && (
+                    <div
+                      ref={colorPickerRef}
+                      className="absolute top-full left-0 mt-1 p-2 bg-white rounded shadow-lg border border-[var(--border-light)] z-50"
+                    >
+                      <div className="grid grid-cols-4 gap-1">
+                        {bgColors.map((color) => (
+                          <button
+                            key={color}
+                            onClick={() => setBgColor(color)}
+                            className="w-6 h-6 rounded border border-[var(--border-light)] hover:scale-110 transition-transform"
+                            style={{ backgroundColor: color }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
                 <RibbonToggleButton
-                  icon={<Highlighter className="w-4 h-4" />}
-                  label="高亮"
-                  active={editor?.isActive("highlight")}
-                  onClick={() => editor?.chain().focus().toggleHighlight().run()}
+                  icon={<Code className="w-4 h-4" />}
+                  label="代码"
+                  active={editor?.isActive("code")}
+                  onClick={() => editor?.chain().focus().toggleCode().run()}
+                />
+                <RibbonToggleButton
+                  icon={<Eraser className="w-4 h-4" />}
+                  label="清除格式"
+                  onClick={() => editor?.chain().focus().unsetAllMarks().run()}
                 />
               </div>
             </RibbonGroup>
 
-            {/* Paragraph Group */}
             <RibbonGroup label="段落">
               <div className="flex items-center gap-0.5">
                 <RibbonToggleButton
@@ -394,7 +545,6 @@ function RibbonToolbar({ editor, activeTab, onTabChange }: RibbonToolbarProps) {
               </div>
             </RibbonGroup>
 
-            {/* Heading Group */}
             <RibbonGroup label="样式">
               <div className="flex items-center gap-0.5">
                 <RibbonToggleButton
@@ -423,48 +573,109 @@ function RibbonToolbar({ editor, activeTab, onTabChange }: RibbonToolbarProps) {
                 />
               </div>
             </RibbonGroup>
-
-            {/* History Group */}
-            <RibbonGroup label="历史">
-              <div className="flex items-center gap-0.5">
-                <RibbonButton
-                  icon={<Undo className="w-4 h-4" />}
-                  label="撤销"
-                  disabled={!editor?.can().undo()}
-                  onClick={() => editor?.chain().focus().undo().run()}
-                />
-                <RibbonButton
-                  icon={<Redo className="w-4 h-4" />}
-                  label="重做"
-                  disabled={!editor?.can().redo()}
-                  onClick={() => editor?.chain().focus().redo().run()}
-                />
-              </div>
-            </RibbonGroup>
           </>
         )}
 
         {activeTab === "insert" && (
           <>
-            <RibbonGroup label="插入">
-              <RibbonButton icon={<LinkIcon className="w-4 h-4" />} label="链接" />
-              <RibbonButton icon={<Image className="w-4 h-4" />} label="图片" />
-              <RibbonButton icon={<Table className="w-4 h-4" />} label="表格" />
-              <RibbonButton icon={<Minus className="w-4 h-4" />} label="分隔线" />
+            <RibbonGroup label="链接">
+              <RibbonButton
+                icon={<LinkIcon className="w-4 h-4" />}
+                label="插入链接"
+                onClick={() => setShowLinkDialog(true)}
+              />
+            </RibbonGroup>
+
+            <RibbonGroup label="媒体">
+              <RibbonButton
+                icon={<ImageIcon className="w-4 h-4" />}
+                label="插入图片"
+                onClick={onInsertImage}
+              />
+            </RibbonGroup>
+
+            <RibbonGroup label="表格">
+              <div className="flex items-center gap-1">
+                <RibbonButton
+                  icon={<TableIcon className="w-4 h-4" />}
+                  label="插入表格"
+                  onClick={() => handleInsertTable(3, 3)}
+                />
+                <RibbonButton
+                  icon={<Plus className="w-4 h-4" />}
+                  label="添加行列"
+                  onClick={() => {
+                    editor?.chain().focus().addColumnAfter().run();
+                  }}
+                />
+              </div>
+            </RibbonGroup>
+
+            <RibbonGroup label="其他">
+              <RibbonButton
+                icon={<Minus className="w-4 h-4" />}
+                label="分隔线"
+                onClick={() => editor?.chain().focus().setHorizontalRule().run()}
+              />
             </RibbonGroup>
           </>
         )}
 
         {activeTab === "layout" && (
-          <RibbonGroup label="页面布局">
-            <RibbonButton icon={<Type className="w-4 h-4" />} label="边距" />
+          <RibbonGroup label="页面设置">
+            <div className="flex items-center gap-2">
+              <div className="flex flex-col items-center">
+                <span className="text-xs text-[var(--text-muted)] mb-1">页边距</span>
+                <select className="h-7 px-2 text-sm border border-[var(--border-light)] rounded bg-white">
+                  <option>普通</option>
+                  <option>窄</option>
+                  <option>宽</option>
+                  <option>自定义</option>
+                </select>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-xs text-[var(--text-muted)] mb-1">纸张大小</span>
+                <select className="h-7 px-2 text-sm border border-[var(--border-light)] rounded bg-white">
+                  <option>A4</option>
+                  <option>A3</option>
+                  <option>A5</option>
+                  <option>Letter</option>
+                </select>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-xs text-[var(--text-muted)] mb-1">方向</span>
+                <select className="h-7 px-2 text-sm border border-[var(--border-light)] rounded bg-white">
+                  <option>纵向</option>
+                  <option>横向</option>
+                </select>
+              </div>
+            </div>
           </RibbonGroup>
         )}
 
         {activeTab === "view" && (
           <>
+            <RibbonGroup label="显示">
+              <div className="flex items-center gap-1">
+                <RibbonToggleButton
+                  icon={<Type className="w-4 h-4" />}
+                  label="全屏"
+                  onClick={() => document.documentElement.requestFullscreen?.()}
+                />
+              </div>
+            </RibbonGroup>
             <RibbonGroup label="缩放">
-              <select className="h-7 px-2 text-sm border border-[var(--border-light)] rounded bg-white">
+              <select
+                className="h-7 px-2 text-sm border border-[var(--border-light)] rounded bg-white"
+                onChange={(e) => {
+                  const zoom = e.target.value;
+                  const editorContent = document.querySelector('.ProseMirror') as HTMLElement;
+                  if (editorContent) {
+                    editorContent.style.transform = `scale(${parseInt(zoom) / 100})`;
+                    editorContent.style.transformOrigin = 'top center';
+                  }
+                }}
+              >
                 <option>100%</option>
                 <option>75%</option>
                 <option>50%</option>
@@ -477,6 +688,35 @@ function RibbonToolbar({ editor, activeTab, onTabChange }: RibbonToolbarProps) {
           </>
         )}
       </div>
+
+      {showLinkDialog && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-96">
+            <h3 className="text-lg font-medium mb-4">插入链接</h3>
+            <input
+              type="text"
+              value={linkUrl}
+              onChange={(e) => setLinkUrl(e.target.value)}
+              placeholder="输入链接地址"
+              className="w-full px-3 py-2 border border-[var(--border-light)] rounded mb-4 focus:outline-none focus:border-[var(--office-blue)]"
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowLinkDialog(false)}
+                className="px-4 py-2 text-sm rounded hover:bg-[var(--bg-hover)]"
+              >
+                取消
+              </button>
+              <button
+                onClick={handleInsertLink}
+                className="px-4 py-2 text-sm rounded bg-[var(--office-blue)] text-white hover:bg-[var(--office-blue-dark)]"
+              >
+                插入
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
