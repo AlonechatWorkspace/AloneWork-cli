@@ -1,3 +1,0 @@
-[libfuzzer]
-max_len = 32000
-dict = zip.dict
