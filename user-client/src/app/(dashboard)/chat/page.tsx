@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Plus, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,6 +9,8 @@ import { EmptyState } from '@/components/common/empty-state'
 import { MessageSquare } from 'lucide-react'
 
 export default function ChatPage() {
+  const t = useTranslations('chat')
+  
   return (
     <div className="flex h-full">
       <aside className="w-80 border-r flex flex-col">
@@ -15,7 +18,7 @@ export default function ChatPage() {
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input placeholder="搜索对话" className="pl-9" />
+              <Input placeholder={t('searchPlaceholder')} className="pl-9" />
             </div>
             <Button size="icon" variant="outline">
               <Plus className="h-4 w-4" />
@@ -25,12 +28,12 @@ export default function ChatPage() {
         <div className="flex-1 overflow-auto p-2">
           <EmptyState
             icon={<MessageSquare className="h-8 w-8 text-muted-foreground" />}
-            title="暂无对话"
-            description="开始一个新的对话吧"
+            title={t('noConversations')}
+            description={t('startNew')}
             action={
               <Button size="sm">
                 <Plus className="mr-2 h-4 w-4" />
-                新建对话
+                {t('newChat')}
               </Button>
             }
           />
@@ -40,8 +43,8 @@ export default function ChatPage() {
         <div className="flex-1 flex items-center justify-center">
           <EmptyState
             icon={<MessageSquare className="h-12 w-12 text-muted-foreground" />}
-            title="选择一个对话"
-            description="从左侧选择一个对话开始聊天，或创建新对话"
+            title={t('selectConversation')}
+            description={t('selectOrNew')}
           />
         </div>
       </main>

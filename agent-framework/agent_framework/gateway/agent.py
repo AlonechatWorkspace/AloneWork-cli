@@ -1,6 +1,7 @@
 """
-Agent 核心实现
+Agent 核心实现 - Agent Core Implementation
 ReAct 模式 Agent - 思考、行动、观察循环
+ReAct Pattern Agent - Think, Act, Observe Loop
 """
 import json
 import asyncio
@@ -18,7 +19,11 @@ get_tool_registry = lambda: ToolExecutor()
 
 
 class AgentState(str, Enum):
-    """Agent执行状态"""
+    """
+    Agent执行状态枚举 - Agent Execution State Enum
+    表示Agent在执行过程中的状态
+    Represents the state of Agent during execution
+    """
     IDLE = "idle"
     THINKING = "thinking"
     ACTING = "acting"
@@ -28,16 +33,24 @@ class AgentState(str, Enum):
 
 
 class AgentStep(BaseModel):
-    """Agent执行的一步"""
-    step: int = Field(..., description="Step number")
-    state: AgentState = Field(..., description="Current state")
-    thought: Optional[str] = Field(default=None, description="Agent's thought")
-    action: Optional[Dict[str, Any]] = Field(default=None, description="Action taken")
-    observation: Optional[str] = Field(default=None, description="Observation result")
+    """
+    Agent执行步骤 - Agent Execution Step
+    表示Agent执行过程中的一个步骤
+    Represents a single step in Agent execution
+    """
+    step: int = Field(..., description="步骤编号 / Step number")
+    state: AgentState = Field(..., description="当前状态 / Current state")
+    thought: Optional[str] = Field(default=None, description="Agent的思考 / Agent's thought")
+    action: Optional[Dict[str, Any]] = Field(default=None, description="执行的动作 / Action taken")
+    observation: Optional[str] = Field(default=None, description="观察结果 / Observation result")
 
 
 class AgentResult(BaseModel):
-    """Agent执行结果"""
+    """
+    Agent执行结果 - Agent Execution Result
+    包含执行成功状态、最终答案和执行步骤
+    Contains execution success status, final answer, and execution steps
+    """
     success: bool = Field(default=True)
     final_answer: Optional[str] = Field(default=None)
     steps: List[AgentStep] = Field(default_factory=list)
@@ -60,7 +73,11 @@ Always respond in the same language as the user's question."""
 
 
 class ReActAgent:
-    """ReAct模式 Agent - 思考、行动、观察循环"""
+    """
+    ReAct模式 Agent - ReAct Pattern Agent
+    实现思考、行动、观察循环的Agent
+    Implements the Think-Act-Observe loop Agent
+    """
     
     def __init__(
         self,
@@ -69,6 +86,15 @@ class ReActAgent:
         system_prompt: Optional[str] = None,
         max_iterations: int = 10,
     ):
+        """
+        初始化ReAct Agent - Initialize ReAct Agent
+        
+        Args:
+            llm: 语言模型实例 / Language model instance
+            tool_registry: 工具注册表 / Tool registry
+            system_prompt: 系统提示词 / System prompt
+            max_iterations: 最大迭代次数 / Maximum iteration count
+        """
         self.llm = llm or LiteLLMProvider()
         self.tool_registry = tool_registry or get_tool_registry()
         self.system_prompt = system_prompt or DEFAULT_SYSTEM_PROMPT
@@ -76,18 +102,25 @@ class ReActAgent:
         self.messages: List[Message] = []
     
     def reset(self):
-        """重置Agent状态"""
+        """重置Agent状态 - Reset Agent state"""
         self.messages = []
     
     async def run(self, user_input: str) -> AgentResult:
-        """运行Agent，返回完整结果"""
+        """
+        运行Agent，返回完整结果 - Run Agent and return complete result
+        
+        Args:
+            user_input: 用户输入 / User input
+            
+        Returns:
+            AgentResult: 执行结果 / Execution result
+        """
         import time
         start_time = time.time()
         
         self.reset()
         steps: List[AgentStep] = []
         
-        # 添加系统提示和用户输入
         self.messages.append(Message(role="system", content=self.system_prompt))
         self.messages.append(Message(role="user", content=user_input))
         
@@ -190,7 +223,15 @@ class ReActAgent:
             )
     
     async def run_stream(self, user_input: str) -> AsyncGenerator[Dict[str, Any], None]:
-        """流式运行Agent，产生事件流"""
+        """
+        流式运行Agent，产生事件流 - Run Agent with streaming, yield event stream
+        
+        Args:
+            user_input: 用户输入 / User input
+            
+        Yields:
+            Dict[str, Any]: 执行事件 / Execution event
+        """
         import time
         start_time = time.time()
         
@@ -268,7 +309,7 @@ class ReActAgent:
                             "type": "content",
                             "content": chunk,
                         }
-                        await asyncio.sleep(0.01)  # 短暂延迟模拟真实流式
+                        await asyncio.sleep(0.01)
                     
                     # 完成
                     total_time = (time.time() - start_time) * 1000

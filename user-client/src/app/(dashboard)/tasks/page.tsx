@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Plus, ListTodo } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -8,6 +9,7 @@ import { tasksApi } from '@/lib/api/tasks'
 import { useQuery } from '@tanstack/react-query'
 
 export default function TasksPage() {
+  const t = useTranslations('nav')
   const { data, isLoading } = useQuery({
     queryKey: ['tasks'],
     queryFn: () => tasksApi.list(),
@@ -16,7 +18,7 @@ export default function TasksPage() {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold">任务管理</h1>
+        <h1 className="text-2xl font-semibold">{t('tasks')}</h1>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
           新建任务

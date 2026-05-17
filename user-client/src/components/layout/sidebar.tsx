@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import {
   MessageSquare,
   Bot,
@@ -18,22 +19,24 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Logo } from '@/components/common/logo'
 import { ThemeToggle } from '@/components/common/theme-toggle'
+import { LanguageSwitcher } from '@/components/common/language-switcher'
 import { useUIStore } from '@/stores/ui-store'
 import { useAuthStore } from '@/stores/auth-store'
 
 const navItems = [
-  { href: '/chat', label: '聊天', icon: MessageSquare },
-  { href: '/agent', label: 'Agent', icon: Bot },
-  { href: '/workspace', label: '工作区', icon: FolderOpen },
-  { href: '/tasks', label: '任务', icon: ListTodo },
-  { href: '/skills', label: 'Skills', icon: Puzzle },
+  { href: '/chat', labelKey: 'chat', icon: MessageSquare },
+  { href: '/agent', labelKey: 'agent', icon: Bot },
+  { href: '/workspace', labelKey: 'workspace', icon: FolderOpen },
+  { href: '/tasks', labelKey: 'tasks', icon: ListTodo },
+  { href: '/skills', labelKey: 'skills', icon: Puzzle },
 ]
 
 const bottomNavItems = [
-  { href: '/settings', label: '设置', icon: Settings },
+  { href: '/settings', labelKey: 'settings', icon: Settings },
 ]
 
 export function Sidebar() {
+  const t = useTranslations('nav')
   const pathname = usePathname()
   const { sidebarCollapsed, toggleSidebar } = useUIStore()
   const { user } = useAuthStore()
@@ -63,7 +66,7 @@ export function Sidebar() {
 
       <ScrollArea className="flex-1 px-2 py-4">
         <nav className="space-y-1">
-          {navItems.map(({ href, label, icon: Icon }) => {
+          {navItems.map(({ href, labelKey, icon: Icon }) => {
             const isActive = pathname.startsWith(href)
             return (
               <Link
@@ -77,7 +80,7 @@ export function Sidebar() {
                 )}
               >
                 <Icon className="h-4 w-4 shrink-0" />
-                {!sidebarCollapsed && <span>{label}</span>}
+                {!sidebarCollapsed && <span>{t(labelKey)}</span>}
               </Link>
             )
           })}
@@ -87,7 +90,7 @@ export function Sidebar() {
       <Separator className="mx-2" />
 
       <div className="p-2 space-y-1">
-        {bottomNavItems.map(({ href, label, icon: Icon }) => {
+        {bottomNavItems.map(({ href, labelKey, icon: Icon }) => {
           const isActive = pathname === href
           return (
             <Link
@@ -101,7 +104,7 @@ export function Sidebar() {
               )}
             >
               <Icon className="h-4 w-4 shrink-0" />
-              {!sidebarCollapsed && <span>{label}</span>}
+              {!sidebarCollapsed && <span>{t(labelKey)}</span>}
             </Link>
           )
         })}
@@ -109,6 +112,7 @@ export function Sidebar() {
         {!sidebarCollapsed && (
           <div className="flex items-center justify-between px-3 py-2">
             <ThemeToggle />
+            <LanguageSwitcher />
           </div>
         )}
 

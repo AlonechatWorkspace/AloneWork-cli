@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,6 +15,7 @@ import { apiClient } from '@/lib/api/client'
 import { toast } from 'sonner'
 
 export default function LoginPage() {
+  const t = useTranslations('auth.login')
   const router = useRouter()
   const { login } = useAuthStore()
   const [isLoading, setIsLoading] = useState(false)
@@ -30,11 +32,11 @@ export default function LoginPage() {
       const response = await authApi.login(formData)
       apiClient.setToken(response.access_token)
       login(response.user, response.access_token)
-      toast.success('登录成功')
+      toast.success(t('success'))
       router.push('/chat')
     } catch (error) {
-      toast.error('登录失败', {
-        description: error instanceof Error ? error.message : '请检查用户名和密码',
+      toast.error(t('error'), {
+        description: error instanceof Error ? error.message : t('errorDescription'),
       })
     } finally {
       setIsLoading(false)
@@ -44,19 +46,19 @@ export default function LoginPage() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl">登录</CardTitle>
+        <CardTitle className="text-2xl">{t('title')}</CardTitle>
         <CardDescription>
-          输入您的账号信息登录系统
+          {t('description')}
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="username">用户名</Label>
+            <Label htmlFor="username">{t('username')}</Label>
             <Input
               id="username"
               type="text"
-              placeholder="请输入用户名"
+              placeholder={t('usernamePlaceholder')}
               value={formData.username}
               onChange={(e) => setFormData({ ...formData, username: e.target.value })}
               required
@@ -64,11 +66,11 @@ export default function LoginPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">密码</Label>
+            <Label htmlFor="password">{t('password')}</Label>
             <Input
               id="password"
               type="password"
-              placeholder="请输入密码"
+              placeholder={t('passwordPlaceholder')}
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               required
@@ -79,12 +81,12 @@ export default function LoginPage() {
         <CardFooter className="flex flex-col gap-4">
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            登录
+            {t('submit')}
           </Button>
           <p className="text-sm text-muted-foreground">
-            还没有账号？{' '}
+            {t('noAccount')}{' '}
             <Link href="/register" className="text-primary hover:underline">
-              立即注册
+              {t('register')}
             </Link>
           </p>
         </CardFooter>

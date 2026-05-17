@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Settings as SettingsIcon, User, Bell, Palette, Key } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
@@ -10,33 +11,35 @@ import { Separator } from '@/components/ui/separator'
 import { ThemeToggle } from '@/components/common/theme-toggle'
 
 export default function SettingsPage() {
+  const t = useTranslations('settings')
+  
   return (
     <div className="p-6 max-w-4xl">
-      <h1 className="text-2xl font-semibold mb-6">设置</h1>
+      <h1 className="text-2xl font-semibold mb-6">{t('title')}</h1>
 
       <div className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <User className="h-5 w-5" />
-              个人资料
+              {t('profile.title')}
             </CardTitle>
             <CardDescription>
-              管理您的账号信息
+              {t('profile.description')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="username">用户名</Label>
-                <Input id="username" placeholder="用户名" />
+                <Label htmlFor="username">{t('profile.username')}</Label>
+                <Input id="username" placeholder={t('profile.username')} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">邮箱</Label>
-                <Input id="email" type="email" placeholder="邮箱" />
+                <Label htmlFor="email">{t('profile.email')}</Label>
+                <Input id="email" type="email" placeholder={t('profile.email')} />
               </div>
             </div>
-            <Button>保存更改</Button>
+            <Button>{t('profile.save')}</Button>
           </CardContent>
         </Card>
 
@@ -44,18 +47,18 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Palette className="h-5 w-5" />
-              外观
+              {t('appearance.title')}
             </CardTitle>
             <CardDescription>
-              自定义应用外观
+              {t('appearance.description')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>主题</Label>
+                <Label>{t('appearance.theme')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  选择浅色或深色主题
+                  {t('appearance.themeDescription')}
                 </p>
               </div>
               <ThemeToggle />
@@ -67,22 +70,22 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Key className="h-5 w-5" />
-              API 配置
+              {t('api.title')}
             </CardTitle>
             <CardDescription>
-              配置 LLM API Key
+              {t('api.description')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="apiKey">API Key</Label>
+              <Label htmlFor="apiKey">{t('api.key')}</Label>
               <Input id="apiKey" type="password" placeholder="sk-..." />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="apiBase">API Base URL</Label>
+              <Label htmlFor="apiBase">{t('api.baseUrl')}</Label>
               <Input id="apiBase" placeholder="https://api.openai.com/v1" />
             </div>
-            <Button>保存配置</Button>
+            <Button>{t('api.save')}</Button>
           </CardContent>
         </Card>
 
@@ -90,18 +93,18 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Bell className="h-5 w-5" />
-              通知
+              {t('notifications.title')}
             </CardTitle>
             <CardDescription>
-              管理通知设置
+              {t('notifications.description')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>桌面通知</Label>
+                <Label>{t('notifications.desktop')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  接收桌面推送通知
+                  {t('notifications.desktopDescription')}
                 </p>
               </div>
               <Switch />
@@ -109,9 +112,9 @@ export default function SettingsPage() {
             <Separator />
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>消息声音</Label>
+                <Label>{t('notifications.sound')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  收到新消息时播放声音
+                  {t('notifications.soundDescription')}
                 </p>
               </div>
               <Switch defaultChecked />

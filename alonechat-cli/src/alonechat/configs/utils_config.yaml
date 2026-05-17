@@ -1,0 +1,119 @@
+progress:
+  messages:
+    default_status: "生成中"
+    default_description: "处理中"
+    task_summary_title: "任务摘要"
+    total_label: "总计"
+    completed_label: "完成"
+    failed_label: "失败"
+    skipped_label: "跳过"
+  streaming:
+    buffer_display_size: 50
+    spinner_type: "dots"
+
+log:
+  messages:
+    success_symbol: "✓"
+    fail_symbol: "✗"
+  format:
+    file_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    logger_name: "alonechat"
+  default_level: "INFO"
+
+commands:
+  prefix: "/"
+  messages:
+    usage_label: "用法"
+    example_label: "示例"
+    command_help_title: "命令帮助"
+    available_commands_title: "可用命令"
+    command_column: "命令"
+    description_column: "描述"
+    alias_column: "别名"
+    not_found_message: "未找到命令"
+  defaults:
+    help:
+      description: "显示帮助信息 / Show help information"
+      aliases:
+        - "h"
+        - "?"
+      usage: "/help [命令名 / command name]"
+      examples:
+        - "/help"
+        - "/help generate"
+    exit:
+      description: "退出程序 / Exit program"
+      aliases:
+        - "quit"
+        - "q"
+      usage: "/exit"
+      examples:
+        - "/exit"
+        - "/quit"
+    clear:
+      description: "清屏 / Clear screen"
+      aliases:
+        - "cls"
+      usage: "/clear"
+      examples:
+        - "/clear"
+    model:
+      description: "切换模型 / Switch model"
+      aliases:
+        - "m"
+      usage: "/model <模型名 / model name>"
+      examples:
+        - "/model deepseek"
+        - "/model ollama"
+    context:
+      description: "查看或设置上下文 / View or set context"
+      aliases:
+        - "ctx"
+      usage: "/context [大小 / size]"
+      examples:
+        - "/context"
+        - "/context 1000000"
+    history:
+      description: "查看命令历史 / View command history"
+      aliases:
+        - "hist"
+      usage: "/history [搜索词 / search term]"
+      examples:
+        - "/history"
+        - "/history generate"
+    save:
+      description: "保存对话 / Save conversation"
+      aliases:
+        - "s"
+      usage: "/save [文件名 / filename]"
+      examples:
+        - "/save"
+        - "/save my_chat.json"
+    load:
+      description: "加载对话 / Load conversation"
+      aliases:
+        - "l"
+      usage: "/load <文件名 / filename>"
+      examples:
+        - "/load my_chat.json"
+
+history:
+  default_max_size: 100
+  history_dir: ".alonechat"
+  history_file: "history.json"
+
+autocompleter:
+  min_partial_length: 3
+  max_context_size: 100
+  max_suggestions: 10
+  max_matches_per_context: 3
+
+ui:
+  styles:
+    cyan: "cyan"
+    green: "green"
+    red: "red"
+    yellow: "yellow"
+    blue: "blue"
+    dim: "dim"
+    bold: "bold"

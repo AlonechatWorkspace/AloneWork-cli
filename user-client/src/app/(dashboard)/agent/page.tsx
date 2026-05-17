@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Plus, Bot, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -7,6 +8,8 @@ import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/common/empty-state'
 
 export default function AgentPage() {
+  const t = useTranslations('nav')
+  
   return (
     <div className="flex h-full">
       <aside className="w-80 border-r flex flex-col">

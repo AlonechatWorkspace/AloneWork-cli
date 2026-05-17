@@ -1,6 +1,6 @@
 """
-MTC Agent - More Than Coding Agent
-面向非开发用户的通用办公任务Agent
+MTC Agent - More Than Coding Agent - MTC Agent - More Than Coding Agent
+面向非开发用户的通用办公任务Agent - General office task Agent for non-developer users
 """
 import time
 from typing import Any, AsyncGenerator, Dict, List, Optional
@@ -20,15 +20,25 @@ from agent_framework.agent.mtc_prompts import (
 
 
 class IntentClarifier:
-    """意图澄清系统 - 用于澄清模糊的用户需求"""
+    """
+    意图澄清系统 - Intent Clarification System
+    用于澄清模糊的用户需求 - Used to clarify vague user requirements
+    """
     
     def __init__(self, llm, max_questions: int = 3):
+        """
+        初始化意图澄清器 - Initialize intent clarifier
+        
+        Args:
+            llm: 语言模型实例 / Language model instance
+            max_questions: 最大追问数量 / Maximum number of questions
+        """
         self.llm = llm
         self.max_questions = max_questions
         self.collected_answers: Dict[str, Any] = {}
     
     def should_clarify(self, task: str) -> bool:
-        """判断是否需要澄清意图"""
+        """判断是否需要澄清意图 - Determine if intent clarification is needed"""
         clarification_keywords = [
             "帮我", "弄一下", "处理", "做个", "写个",
             "分析", "整理", "优化", "改进"
@@ -41,7 +51,7 @@ class IntentClarifier:
         return sum(vague_indicators) >= 2
     
     def analyze(self, task: str) -> Dict[str, Any]:
-        """分析用户请求意图"""
+        """分析用户请求意图 - Analyze user request intent"""
         return {
             "original_task": task,
             "needs_clarification": self.should_clarify(task),
@@ -50,46 +60,46 @@ class IntentClarifier:
         }
     
     def generate_questions(self, task: str) -> List[Dict[str, Any]]:
-        """生成追问表单（最多3个问题）"""
+        """生成追问表单（最多3个问题） - Generate follow-up questions (max 3)"""
         questions = []
         
         if self.should_clarify(task):
             questions.append({
                 "id": "output_format",
                 "type": "choice",
-                "question": "您希望输出什么格式的文档？",
-                "options": ["Markdown", "Word文档", "PDF", "Excel表格", "PPT演示文稿"],
+                "question": "您希望输出什么格式的文档？ / What output format do you prefer?",
+                "options": ["Markdown", "Word文档 / Word Document", "PDF", "Excel表格 / Excel Spreadsheet", "PPT演示文稿 / PowerPoint Presentation"],
                 "required": True,
             })
             
             questions.append({
                 "id": "detail_level",
                 "type": "choice",
-                "question": "您需要多详细的内容？",
-                "options": ["简要概述", "标准详细", "非常详细"],
+                "question": "您需要多详细的内容？ / How detailed should the content be?",
+                "options": ["简要概述 / Brief Summary", "标准详细 / Standard Detail", "非常详细 / Very Detailed"],
                 "required": True,
             })
             
             questions.append({
                 "id": "target_audience",
                 "type": "text",
-                "question": "这份文档的目标读者是谁？（可选）",
+                "question": "这份文档的目标读者是谁？（可选） / Who is the target audience? (Optional)",
                 "required": False,
             })
         
         return questions[:self.max_questions]
     
     def collect_answers(self, answers: Dict[str, Any]) -> None:
-        """收集用户回答"""
+        """收集用户回答 - Collect user answers"""
         self.collected_answers.update(answers)
     
     def integrate(self, original_task: str) -> str:
-        """整合回答为完整需求"""
+        """整合回答为完整需求 - Integrate answers into complete requirement"""
         if not self.collected_answers:
             return original_task
         
-        integrated = f"原始需求：{original_task}\n\n"
-        integrated += "澄清信息：\n"
+        integrated = f"原始需求 / Original Request：{original_task}\n\n"
+        integrated += "澄清信息 / Clarification Info：\n"
         
         for key, value in self.collected_answers.items():
             integrated += f"- {key}: {value}\n"
@@ -97,18 +107,22 @@ class IntentClarifier:
         return integrated
     
     def reset(self) -> None:
-        """重置澄清状态"""
+        """重置澄清状态 - Reset clarification state"""
         self.collected_answers = {}
 
 
 class TaskPlanner:
-    """任务规划器 - 将复杂任务分解为子任务"""
+    """
+    任务规划器 - Task Planner
+    将复杂任务分解为子任务 - Decomposes complex tasks into subtasks
+    """
     
     def __init__(self, llm):
+        """初始化任务规划器 - Initialize task planner"""
         self.llm = llm
     
     def decompose(self, task: str) -> List[Task]:
-        """将复杂任务分解为子任务列表"""
+        """将复杂任务分解为子任务列表 - Decompose complex task into subtask list"""
         subtasks = []
         
         task_lower = task.lower()
@@ -116,27 +130,27 @@ class TaskPlanner:
         if "文档" in task or "报告" in task or "写" in task:
             subtasks = [
                 Task(
-                    description="分析需求和目标",
+                    description="分析需求和目标 / Analyze requirements and goals",
                     status=TaskStatus.PENDING,
                     priority=TaskPriority.HIGH,
                 ),
                 Task(
-                    description="收集相关信息和数据",
+                    description="收集相关信息和数据 / Collect relevant information and data",
                     status=TaskStatus.PENDING,
                     priority=TaskPriority.HIGH,
                 ),
                 Task(
-                    description="生成文档大纲",
+                    description="生成文档大纲 / Generate document outline",
                     status=TaskStatus.PENDING,
                     priority=TaskPriority.MEDIUM,
                 ),
                 Task(
-                    description="填充文档内容",
+                    description="填充文档内容 / Fill document content",
                     status=TaskStatus.PENDING,
                     priority=TaskPriority.MEDIUM,
                 ),
                 Task(
-                    description="格式化和优化输出",
+                    description="格式化和优化输出 / Format and optimize output",
                     status=TaskStatus.PENDING,
                     priority=TaskPriority.LOW,
                 ),
@@ -144,27 +158,27 @@ class TaskPlanner:
         elif "数据" in task or "分析" in task:
             subtasks = [
                 Task(
-                    description="加载数据源",
+                    description="加载数据源 / Load data source",
                     status=TaskStatus.PENDING,
                     priority=TaskPriority.HIGH,
                 ),
                 Task(
-                    description="数据清洗和预处理",
+                    description="数据清洗和预处理 / Data cleaning and preprocessing",
                     status=TaskStatus.PENDING,
                     priority=TaskPriority.HIGH,
                 ),
                 Task(
-                    description="统计分析和计算",
+                    description="统计分析和计算 / Statistical analysis and calculation",
                     status=TaskStatus.PENDING,
                     priority=TaskPriority.MEDIUM,
                 ),
                 Task(
-                    description="生成可视化图表",
+                    description="生成可视化图表 / Generate visualization charts",
                     status=TaskStatus.PENDING,
                     priority=TaskPriority.MEDIUM,
                 ),
                 Task(
-                    description="输出分析报告",
+                    description="输出分析报告 / Output analysis report",
                     status=TaskStatus.PENDING,
                     priority=TaskPriority.LOW,
                 ),
@@ -172,22 +186,22 @@ class TaskPlanner:
         elif "调研" in task or "搜索" in task:
             subtasks = [
                 Task(
-                    description="提取关键词和搜索策略",
+                    description="提取关键词和搜索策略 / Extract keywords and search strategy",
                     status=TaskStatus.PENDING,
                     priority=TaskPriority.HIGH,
                 ),
                 Task(
-                    description="执行信息搜索",
+                    description="执行信息搜索 / Execute information search",
                     status=TaskStatus.PENDING,
                     priority=TaskPriority.HIGH,
                 ),
                 Task(
-                    description="筛选和整理信息",
+                    description="筛选和整理信息 / Filter and organize information",
                     status=TaskStatus.PENDING,
                     priority=TaskPriority.MEDIUM,
                 ),
                 Task(
-                    description="生成调研报告",
+                    description="生成调研报告 / Generate research report",
                     status=TaskStatus.PENDING,
                     priority=TaskPriority.LOW,
                 ),
@@ -195,7 +209,7 @@ class TaskPlanner:
         else:
             subtasks = [
                 Task(
-                    description=f"执行任务：{task}",
+                    description=f"执行任务 / Execute task：{task}",
                     status=TaskStatus.PENDING,
                     priority=TaskPriority.MEDIUM,
                 ),
@@ -209,7 +223,7 @@ class TaskPlanner:
         return subtasks
     
     def identify_dependencies(self, tasks: List[Task]) -> Dict[str, List[str]]:
-        """识别任务间依赖关系"""
+        """识别任务间依赖关系 - Identify dependencies between tasks"""
         dependencies = {}
         for task in tasks:
             dep_ids = [dep.task_id for dep in task.dependencies]
@@ -218,7 +232,7 @@ class TaskPlanner:
         return dependencies
     
     def build_dag(self, tasks: List[Task]) -> Dict[str, Any]:
-        """构建任务DAG图"""
+        """构建任务DAG图 - Build task DAG graph"""
         nodes = {task.id: task for task in tasks}
         edges = []
         
@@ -233,7 +247,7 @@ class TaskPlanner:
         }
     
     def get_execution_order(self, tasks: List[Task]) -> List[List[Task]]:
-        """获取执行顺序（拓扑排序，返回分层结果）"""
+        """获取执行顺序（拓扑排序，返回分层结果） - Get execution order (topological sort, returns layered result)"""
         if not tasks:
             return []
         
@@ -266,7 +280,7 @@ class TaskPlanner:
         return layers
     
     def estimate_complexity(self, task: str) -> str:
-        """估算任务复杂度"""
+        """估算任务复杂度 - Estimate task complexity"""
         complexity_indicators = {
             "high": ["完整", "详细", "全面", "多个", "复杂", "系统"],
             "medium": ["分析", "报告", "整理", "优化"],
@@ -283,7 +297,10 @@ class TaskPlanner:
 
 
 class MTCAgent(ReActAgent):
-    """MTC模式Agent - 面向非开发用户的通用办公任务Agent"""
+    """
+    MTC模式Agent - MTC Mode Agent
+    面向非开发用户的通用办公任务Agent - General office task Agent for non-developer users
+    """
     
     def __init__(
         self,
@@ -295,6 +312,18 @@ class MTCAgent(ReActAgent):
         system_prompt: Optional[str] = None,
         config=None,
     ):
+        """
+        初始化MTC Agent - Initialize MTC Agent
+        
+        Args:
+            llm: 语言模型实例 / Language model instance
+            tool_registry: 工具注册表 / Tool registry
+            memory: 记忆模块 / Memory module
+            max_iterations: 最大迭代次数 / Maximum iteration count
+            name: Agent名称 / Agent name
+            system_prompt: 系统提示词 / System prompt
+            config: 配置对象 / Configuration object
+        """
         super().__init__(llm, tool_registry, memory, max_iterations, name, system_prompt)
         
         self.mode = AgentMode.MTC
@@ -311,15 +340,16 @@ class MTCAgent(ReActAgent):
         self.clarification_enabled = True if config is None else config.mode.mtc_config.intent_clarification_enabled
     
     def _default_system_prompt(self) -> str:
+        """获取默认系统提示词 - Get default system prompt"""
         tools = self.tool_registry.list_tools()
         tool_descriptions = "\n".join(
             f"- {t['name']}: {t['description']}" for t in tools
-        ) if tools else "暂无可用工具"
+        ) if tools else "暂无可用工具 / No tools available"
         
         return MTC_SYSTEM_PROMPT.format(tools=tool_descriptions)
     
     def _load_tools(self) -> None:
-        """加载MTC专用工具集"""
+        """加载MTC专用工具集 - Load MTC-specific tool set"""
         try:
             from agent_framework.tools.mtc import register_mtc_tools
             register_mtc_tools(self.tool_registry)
@@ -327,7 +357,7 @@ class MTCAgent(ReActAgent):
             pass
     
     def clarify_intent(self, task: str) -> Dict[str, Any]:
-        """意图澄清逻辑"""
+        """意图澄清逻辑 - Intent clarification logic"""
         if not self.clarification_enabled:
             return {"needs_clarification": False, "task": task}
         
@@ -346,11 +376,11 @@ class MTCAgent(ReActAgent):
         }
     
     def collect_clarification_answers(self, answers: Dict[str, Any]) -> None:
-        """收集澄清回答"""
+        """收集澄清回答 - Collect clarification answers"""
         self.intent_clarifier.collect_answers(answers)
     
     def plan_task(self, task: str) -> Dict[str, Any]:
-        """任务规划逻辑"""
+        """任务规划逻辑 - Task planning logic"""
         complexity = self.task_planner.estimate_complexity(task)
         
         if complexity == "low":
@@ -376,7 +406,7 @@ class MTCAgent(ReActAgent):
         }
     
     def get_task_progress(self) -> Dict[str, Any]:
-        """获取任务进度"""
+        """获取任务进度 - Get task progress"""
         if not self.current_tasks:
             return {"progress": 0, "tasks": []}
         
@@ -393,15 +423,15 @@ class MTCAgent(ReActAgent):
         }
     
     def add_artifact(self, artifact: Artifact) -> None:
-        """添加产出物"""
+        """添加产出物 - Add artifact"""
         self.artifacts.append(artifact)
     
     def get_artifacts(self) -> List[Artifact]:
-        """获取所有产出物"""
+        """获取所有产出物 - Get all artifacts"""
         return self.artifacts
     
     def run(self, task: str) -> AgentResult:
-        """执行任务（覆盖父类，添加意图澄清和任务规划步骤）"""
+        """执行任务（覆盖父类，添加意图澄清和任务规划步骤） - Execute task (override parent, add intent clarification and task planning)"""
         start_time = time.time()
         
         clarified_task = task
@@ -434,14 +464,14 @@ class MTCAgent(ReActAgent):
         return final_result
     
     async def run_stream(self, task: str) -> AsyncGenerator[AgentEvent, None]:
-        """流式执行任务"""
+        """流式执行任务 - Execute task with streaming"""
         clarified_task = task
         if self.clarification_enabled:
             clarification = self.clarify_intent(task)
             if clarification["needs_clarification"]:
                 yield AgentEvent(
                     type="clarification_needed",
-                    content="需要澄清意图",
+                    content="需要澄清意图 / Intent clarification needed",
                     metadata={"questions": clarification["questions"]}
                 )
                 clarified_task = self.intent_clarifier.integrate(task)
@@ -450,7 +480,7 @@ class MTCAgent(ReActAgent):
         if planning["needs_planning"]:
             yield AgentEvent(
                 type="plan_created",
-                content="任务计划已创建",
+                content="任务计划已创建 / Task plan created",
                 metadata={"subtasks": planning["subtasks"]}
             )
         
@@ -459,12 +489,12 @@ class MTCAgent(ReActAgent):
         
         yield AgentEvent(
             type="task_completed",
-            content="任务完成",
+            content="任务完成 / Task completed",
             metadata={"artifacts": [a.model_dump() for a in self.artifacts]}
         )
     
     def reset(self) -> None:
-        """重置Agent状态"""
+        """重置Agent状态 - Reset Agent state"""
         self.current_tasks = []
         self.artifacts = []
         self.intent_clarifier.reset()

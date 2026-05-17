@@ -1,13 +1,16 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { FolderOpen, FileText, Presentation, Sheet } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/common/empty-state'
 
 export default function WorkspacePage() {
+  const t = useTranslations('nav')
+  
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold mb-6">工作区</h1>
+      <h1 className="text-2xl font-semibold mb-6">{t('workspace')}</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
