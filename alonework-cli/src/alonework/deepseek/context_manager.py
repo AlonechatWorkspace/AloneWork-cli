@@ -1,10 +1,10 @@
 """
-ä¸ä¸æç®¡çæ¨¡å?/ Context Management Module
+Context Management Module
 
-æä¾ / Provides:
-- 100ä¸Tokenä¸ä¸æ?/ 1M token context
-- ä¸ä¸æåç¼?/ Context compression
-- æºè½ç¼å­ / Smart caching
+Provides:
+- 1M token context
+- Context compression
+- Smart caching
 """
 
 from typing import Optional, List, Dict, Any, Tuple
@@ -20,7 +20,7 @@ from pathlib import Path
 
 @dataclass
 class Message:
-    """æ¶æ¯æ°æ®ç±?/ Message Data Class"""
+    """Message Data Class"""
     role: str
     content: str
     timestamp: datetime = field(default_factory=datetime.now)
@@ -28,7 +28,7 @@ class Message:
     metadata: Dict[str, Any] = field(default_factory=dict)
     
     def estimate_tokens(self) -> int:
-        """ä¼°ç®Tokenæ?/ Estimate token count"""
+        """Estimate token count"""
         if self.token_count > 0:
             return self.token_count
         
@@ -41,7 +41,7 @@ class Message:
 
 @dataclass
 class ContextSnapshot:
-    """ä¸ä¸æå¿«ç?/ Context Snapshot"""
+    """Context Snapshot"""
     messages: List[Message]
     total_tokens: int
     created_at: datetime
@@ -65,7 +65,7 @@ class ContextSnapshot:
 
 
 class ContextConfigLoader:
-    """ä¸ä¸æéç½®å è½½å¨ / Context Config Loader"""
+    """Context Config Loader"""
     
     _instance: Optional["ContextConfigLoader"] = None
     _config: Optional[Dict[str, Any]] = None

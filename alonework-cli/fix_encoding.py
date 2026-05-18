@@ -8,11 +8,9 @@ Fix encoding issues in Python files, converting garbled Chinese characters to co
 """
 
 import os
-import chardet
 from pathlib import Path
 from typing import Optional, Tuple
 
-# 需要修复的文件列表 / Files to fix
 FILES_TO_FIX = [
     "src/alonework/utils/__init__.py",
     "src/alonework/utils/progress.py",
@@ -30,6 +28,7 @@ FILES_TO_FIX = [
     "src/alonework/deepseek/prompt_engineer.py",
     "src/alonework/lsp/__init__.py",
     "src/alonework/lsp/client.py",
+    "src/alonework/lsp/features.py",
     "src/alonework/mcp/cli.py",
     "src/alonework/mcp/config.py",
     "src/alonework/input/__init__.py",
@@ -68,7 +67,6 @@ FILES_TO_FIX = [
     "src/alonework/configs/style_loader.py",
 ]
 
-# 已知正确编码的文件（不需要修复）/ Files with correct encoding (no need to fix)
 SKIP_FILES = [
     "src/alonework/context/__init__.py",
     "src/alonework/session/__init__.py",
@@ -82,74 +80,37 @@ SKIP_FILES = [
 ]
 
 def detect_encoding(file_path: Path) -> Tuple[str, float]:
-    """
-    检测文件编码 / Detect file encoding
-    
-    Args:
-        file_path: 文件路径 / File path
-        
-    Returns:
-        (编码名称, 置信度) / (encoding name, confidence)
-    """
     with open(file_path, 'rb') as f:
         raw_data = f.read()
     
-    result = chardet.detect(raw_data)
-    return result['encoding'], result['confidence']
-
-def try_read_with_encoding(file_path: Path, encoding: str) -> Optional[str]:
-    """
-    尝试用指定编码读取文件 / Try to read file with specified encoding
+    if raw_data.startswith(b'\xff\xfe'):
+        return ('utf-16', 1.0)
+    if raw_data.startswith(b'\xfe\xff'):
+        return ('utf-16-be', 1.0)
+    if raw_data.startswith(b'\xef\xbb\xbf'):
+        return ('utf-8-sig', 1.0)
     
-    Args:
-        file_path: 文件路径 / File path
-        encoding: 编码名称 / Encoding name
-        
-    Returns:
-        文件内容或 None / File content or None
-    """
     try:
-        with open(file_path, 'r', encoding=encoding, errors='strict') as f:
-            return f.read()
-    except (UnicodeDecodeError, LookupError):
-        return None
-
-def has_garbled_chinese(content: str) -> bool:
-    """
-    检查内容是否有乱码中文字符 / Check if content has garbled Chinese characters
+        raw_data.decode('utf-8')
+        return ('utf-8', 0.9)
+    except UnicodeDecodeError:
+        pass
     
-    Args:
-        content: 文件内容 / File content
-        
-    Returns:
-        是否有乱码 / Whether has garbled characters
-    """
-    garbled_patterns = [
-        'å', 'ç', 'è', 'é', 'ê', 'ë', 'ì', 'í', 'î', 'ï',
-        'ð', 'ñ', 'ò', 'ó', 'ô', 'õ', 'ö', 'ø', 'ù', 'ú',
-        'û', 'ü', 'ý', 'þ', 'ÿ',
-        '鏃', 'ュ', '織', '绯', '荤', '粺', '妯', '″', '潡',
-        '宸', 'ュ', '叿', '妯', '″', '潡',
-        '鍖', '呭', '惈', '锛',
-    ]
+    try:
+        raw_data.decode('gbk')
+        return ('gbk', 0.85)
+    except UnicodeDecodeError:
+        pass
     
-    for pattern in garbled_patterns:
-        if pattern in content:
-            return True
+    try:
+        raw_data.decode('gb2312')
+        return ('gb2312', 0.8)
+    except UnicodeDecodeError:
+        pass
     
-    return False
+    return ('utf-8', 0.5)
 
 def fix_file_encoding(file_path: Path, base_dir: Path) -> bool:
-    """
-    修复单个文件的编码 / Fix encoding of a single file
-    
-    Args:
-        file_path: 文件路径 / File path
-        base_dir: 基础目录 / Base directory
-        
-    Returns:
-        是否成功修复 / Whether successfully fixed
-    """
     full_path = base_dir / file_path
     
     if not full_path.exists():
@@ -159,13 +120,63 @@ def fix_file_encoding(file_path: Path, base_dir: Path) -> bool:
     print(f"  [检查] {file_path}")
     
     try:
-        with open(full_path, 'r', encoding='utf-8') as f:
-            content = f.read()
+        with open(full_path, 'rb') as f:
+            raw_data = f.read()
         
-        if not has_garbled_chinese(content):
-            print(f"  [正常] UTF-8 编码正确，无需修复")
+        try:
+            content = raw_data.decode('utf-8')
+            print(f"  [正常] UTF-8 编码正确")
             return True
+        except UnicodeDecodeError:
+            pass
         
-        print(f"  [问题] 发现乱码，尝试修复...")
+        try:
+            content = raw_data.decode('gbk')
+            with open(full_path, 'w', encoding='utf-8') as f:
+                f.write(content)
+            print(f"  [修复] GBK -> UTF-8")
+            return True
+        except UnicodeDecodeError:
+            pass
         
-    except UnicodeDecode
+        try:
+            content = raw_data.decode('gb2312')
+            with open(full_path, 'w', encoding='utf-8') as f:
+                f.write(content)
+            print(f"  [修复] GB2312 -> UTF-8")
+            return True
+        except UnicodeDecodeError:
+            pass
+        
+        print(f"  [错误] 无法识别编码")
+        return False
+        
+    except Exception as e:
+        print(f"  [异常] {e}")
+        return False
+
+def main():
+    base_dir = Path(__file__).parent
+    print(f"开始修复文件编码...")
+    print(f"基础目录: {base_dir}")
+    print()
+    
+    fixed_count = 0
+    skipped_count = 0
+    error_count = 0
+    
+    for file_path in FILES_TO_FIX:
+        result = fix_file_encoding(file_path, base_dir)
+        if result:
+            fixed_count += 1
+        else:
+            error_count += 1
+    
+    print()
+    print(f"修复完成!")
+    print(f"成功: {fixed_count}")
+    print(f"失败: {error_count}")
+    print(f"跳过: {skipped_count}")
+
+if __name__ == "__main__":
+    main()

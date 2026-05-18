@@ -1,11 +1,11 @@
 """
-鏃ュ織绯荤粺妯″潡 / Log System Module
+Log System Module
 
-鎻愪緵 / Provides:
-- 缁撴瀯鍖栨棩蹇?/ Structured logging
-- 鏃ュ織绾у埆鎺у埗 / Log level control
-- 鏂囦欢杈撳嚭 / File output
-- 缁堢缇庡寲杈撳嚭 / Terminal beautified output
+Provides:
+- Structured logging
+- Log level control
+- File output
+- Terminal beautified output
 """
 
 import logging
@@ -24,7 +24,7 @@ from alonework.configs import config
 
 
 class LogLevel(Enum):
-    """鏃ュ織绾у埆鏋氫妇 / Log Level Enum"""
+    """Log Level Enum"""
     DEBUG = "DEBUG"
     INFO = "INFO"
     WARNING = "WARNING"
@@ -34,7 +34,7 @@ class LogLevel(Enum):
 
 @dataclass
 class LogConfig:
-    """鏃ュ織閰嶇疆 / Log Configuration"""
+    """Log Configuration"""
     level: LogLevel = LogLevel.INFO
     file_path: Optional[Path] = None
     console_output: bool = True
@@ -45,9 +45,9 @@ class LogConfig:
 
 class AloneChatLogger:
     """
-    AloneChat鏃ュ織鍣?/ AloneChat Logger
+    AloneChat Logger
     
-    鍗曚緥妯″紡鐨勬棩蹇楃鐞嗗櫒 / Singleton pattern log manager
+    Singleton pattern log manager
     """
     
     _instance: Optional["AloneChatLogger"] = None
@@ -86,7 +86,7 @@ class AloneChatLogger:
             self._add_file_handler(self.log_config.file_path)
     
     def _add_file_handler(self, path: Path) -> None:
-        """娣诲姞鏂囦欢澶勭悊鍣?/ Add file handler"""
+        """Add file handler"""
         path.parent.mkdir(parents=True, exist_ok=True)
         file_handler = logging.FileHandler(path, encoding="utf-8")
         file_format = config.get("log.format.file_format", 

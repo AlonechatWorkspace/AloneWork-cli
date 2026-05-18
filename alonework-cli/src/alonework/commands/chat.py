@@ -1,20 +1,20 @@
 """
-chatå½ä»¤ - å¯å¨äº¤äºå¼å¯¹è¯?/ chat command - Start interactive chat
+chat command - Start interactive chat
 
-æä¾äº¤äºå¼å¯¹è¯çé¢ï¼æ¯æ / Provides interactive chat interface:
-- èªç¶è¯­è¨äº¤äº / Natural language interaction
-- ä»£ç çæåçè§?/ Code generation and understanding
-- å¤è½®å¯¹è¯ / Multi-turn conversation
-- ä¸ä¸æç¼å­?/ Context caching
-- æèæ¨¡å¼?/ Thinking mode
-- ä¼è¯ç®¡ç / Session management
-- Slashå½ä»¤ / Slash commands
-- éè¡æµå¼è¾åº / Line-by-line streaming output (v2.1.78)
-- Ctrl+O å®æ¶æ¾ç¤ºæç»´å?/ Ctrl+O live thinking block (v2.1.0)
-- æç¤ºå»ºè®® / Prompt suggestions (v2.0.70)
-- IMEæ¯æ / IME support (v2.0.68)
-- èªå¨å¯¹è¯åç¼© / Auto conversation compression (v0.2.47)
-- ä¼è¯æ¾ç¤ºåç§° / Session display name (v2.1.76)
+Provides interactive chat interface:
+- Natural language interaction
+- Code generation and understanding
+- Multi-turn conversation
+- Context caching
+- Thinking mode
+- Session management
+- Slash commands
+- Line-by-line streaming output (v2.1.78)
+- Ctrl+O live thinking block (v2.1.0)
+- Prompt suggestions (v2.0.70)
+- IME support (v2.0.68)
+- Auto conversation compression (v0.2.47)
+- Session display name (v2.1.76)
 """
 
 import click
@@ -41,7 +41,7 @@ from alonework.utils.status_bar import InteractiveStatusBar, StatusState, UsageI
 console = Console()
 
 
-# ä¼è¯ææ¬è¿½è¸ª / Session cost tracking
+# Session cost tracking
 _session_cost: float = 0.0
 
 DEEPSEEK_INPUT_RATE = 0.001  # $0.001 / 1M tokens
@@ -49,37 +49,37 @@ DEEPSEEK_OUTPUT_RATE = 0.002  # $0.002 / 1M tokens
 
 
 def format_usage(usage: UsageInfo | None) -> str:
-    """æ ¼å¼åä½¿ç¨éä¿¡æ¯ / Format usage info"""
+    """Format usage info"""
     if usage is None:
         return ""
     
     parts = []
     
     if usage.prompt_tokens > 0:
-        parts.append(f"è¾å¥: {usage.prompt_tokens:,}")
+        parts.append(f"Input: {usage.prompt_tokens:,}")
     if usage.completion_tokens > 0:
-        parts.append(f"è¾åº: {usage.completion_tokens:,}")
+        parts.append(f"Output: {usage.completion_tokens:,}")
     
     if usage.prompt_cache_hit_tokens > 0:
         hit_rate = usage.cache_hit_rate * 100
-        parts.append(f"ç¼å­å½ä¸­: {usage.prompt_cache_hit_tokens:,} ({hit_rate:.1f}%)")
+        parts.append(f"Cache hit: {usage.prompt_cache_hit_tokens:,} ({hit_rate:.1f}%)")
     
     if usage.total_tokens > 0:
-        parts.append(f"æ»è®¡: {usage.total_tokens:,}")
+        parts.append(f"Total: {usage.total_tokens:,}")
     
     return " | ".join(parts)
 
 
 def format_session_cost() -> str:
-    """æ ¼å¼åä¼è¯æ»ææ?/ Format total session cost"""
+    """Format total session cost"""
     global _session_cost
     if _session_cost <= 0:
         return ""
-    return f"ä¼è¯ææ¬: ${_session_cost:.4f} / Session cost: ${_session_cost:.4f}"
+    return f"Session cost: ${_session_cost:.4f}"
 
 
 def update_session_cost(usage: UsageInfo | None) -> None:
-    """æ´æ°ä¼è¯ç´¯è®¡ææ¬ / Update cumulative session cost"""
+    """Update cumulative session cost"""
     global _session_cost
     if usage is None:
         return
@@ -95,9 +95,9 @@ def process_slash_command(
     session_manager,
 ) -> tuple[bool, bool]:
     """
-    å¤çslashå½ä»¤ / Process slash command
+    Process slash command
     
-    è¿å (handled, should_continue) / Returns (handled, should_continue)
+    Returns (handled, should_continue)
     """
     if not user_input.startswith("/"):
         return False, True
@@ -132,15 +132,15 @@ def run_chat_loop(
     compact_threshold: int = 100,
 ) -> None:
     """
-    è¿è¡èå¤©å¾ªç¯ / Run chat loop
+    Run chat loop
     
-    æ ¸å¿èå¤©äº¤äºé»è¾ / Core chat interaction logic
+    Core chat interaction logic
     
     Args:
-        stream: æ¯å¦å¯ç¨éè¡æµå¼è¾åº / Enable line-by-line streaming output (v2.1.78)
-        enable_thinking_block: æ¯å¦å¯ç¨Ctrl+Oæç»´å?/ Enable Ctrl+O thinking block (v2.1.0)
-        auto_compact: æ¯å¦å¯ç¨èªå¨åç¼© / Enable auto compact (v0.2.47)
-        compact_threshold: èªå¨åç¼©éå?/ Auto compact threshold
+        stream: Enable line-by-line streaming output (v2.1.78)
+        enable_thinking_block: Enable Ctrl+O thinking block (v2.1.0)
+        auto_compact: Enable auto compact (v0.2.47)
+        compact_threshold: Auto compact threshold
     """
     config = config_manager.load_config()
     model_router = ModelRouter(config)
@@ -158,7 +158,7 @@ def run_chat_loop(
         session_manager.current_session.metadata["compact_threshold"] = compact_threshold
         session_manager.save_current_session()
     
-    console.print("[bold green]AloneChat å·²å°±ç»ªï¼è¯·è¾å¥æ¨çæä»?.. / Ready, please enter your instruction...[/bold green]\n")
+    console.print("[bold green]AloneChat Ready, please enter your instruction...[/bold green]\n")
     
     while True:
         try:
@@ -173,7 +173,7 @@ def run_chat_loop(
             ime_manager.after_input()
             
             if user_input.lower() in ["exit", "quit", "q"]:
-                console.print("\n[dim]åè§ï¼?/ Goodbye![/dim]")
+                console.print("\n[dim]Goodbye![/dim]")
                 break
             
             if not user_input.strip():
