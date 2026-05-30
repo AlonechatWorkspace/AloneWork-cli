@@ -1,12 +1,12 @@
-# AloneChat Workspace
+# AloneWork
 
 <div align="center">
 
-[![Python](https://img.shields.io/badge/Python-3.13%2B-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?style=flat&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109%2B-009688?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=flat&logo=next.js&logoColor=white)](https://nextjs.org/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-Non--Commercial%20Open%20Source-yellow.svg)](LICENSE)
 
 **Production-Grade AI Agent Collaboration Platform**
 
@@ -20,7 +20,7 @@ Real-time Chat × Intelligent Agent × RAG Retrieval × Multi-Agent Orchestratio
 
 ## Introduction
 
-**AloneChat Workspace** is a full-stack collaboration platform integrating real-time chat application with a production-grade AI Agent framework.
+**AloneWork** is a full-stack collaboration platform integrating real-time chat application with a production-grade AI Agent framework.
 
 ### Core Capabilities
 
@@ -35,46 +35,54 @@ Real-time Chat × Intelligent Agent × RAG Retrieval × Multi-Agent Orchestratio
 | **Intent Clarification** | MTC Mode: automatic vague requirement detection, question form generation, task decomposition |
 | **Multi-format File Processing** | Support for PDF, Word, Excel, PPT, Code files with OCR image recognition |
 | **i18n Support** | Bilingual support (English/Chinese) with next-intl |
+| **Enterprise Security** | JWT authentication, bcrypt password hashing, rate limiting, input validation, audit logging |
+| **Data Persistence** | SQLite WAL mode with auto-migration, FTS5 full-text search, connection pooling |
 
 ---
 
 ## Project Structure
 
 ```
-AloneChat-workspace/
-├── chat-app/                     # Real-time Chat Application
-│   ├── backend/                  # FastAPI Backend
-│   │   ├── main.py               # Application Entry
-│   │   ├── auth.py               # JWT Authentication
-│   │   ├── models.py             # Data Models
-│   │   ├── websocket_manager.py  # WebSocket Management
-│   │   ├── routers/              # API Routes
-│   │   ├── services/             # Business Services
-│   │   └── tests/                # Test Cases
-│   └── frontend/                 # Next.js Frontend
-│       ├── src/app/              # Page Routes
-│       ├── src/components/       # React Components
-│       └── package.json
+AloneWork-workspace/
+├── alonework-cli/                # Command Line Interface
+│   └── src/alonechat/
+│       ├── tui/                  # TUI Interactive Interface
+│       ├── orchestration/        # Workflow Orchestration Engine
+│       ├── agents/               # Multi-Agent Collaboration
+│       ├── environment/          # Action Environment System
+│       └── data/                 # Data Collection
 │
-├── agent-framework/              # AI Agent Framework
-│   ├── agent_framework/          # Core Package
-│   │   ├── core/                 # Core Abstractions
-│   │   ├── agent/                # Agent Implementations
-│   │   │   ├── react_agent.py    # ReAct Agent
-│   │   │   ├── multi_agent.py    # Multi-Agent Team
-│   │   │   ├── mtc_agent.py      # MTC Agent
-│   │   │   └── intent_clarifier.py
-│   │   ├── gateway/              # Agent Gateway
-│   │   ├── llm/                  # LLM Providers
-│   │   ├── memory/               # Memory System
-│   │   ├── rag/                  # RAG Pipeline
-│   │   ├── tools/                # Tool System
-│   │   ├── deepseek_optimization/ # DeepSeek Optimization
-│   │   ├── orchestration/        # Orchestration
-│   │   ├── observability/        # Observability
-│   │   └── sandbox/              # Sandbox Execution
-│   ├── examples/                 # Usage Examples
-│   └── tests/                    # Test Cases
+├── agent-framework/              # Core Logic Layer
+│   └── agent_framework/
+│       ├── security/             # Enterprise Security Module
+│       │   ├── auth.py           # Authentication System
+│       │   ├── rate_limiter.py   # Rate Limiter
+│       │   ├── input_validation.py # Input Validation
+│       │   └── config.py         # Security Configuration
+│       ├── storage/              # Storage Module
+│       │   └── database_manager.py # Database Manager
+│       ├── core/                 # Core Infrastructure
+│       │   ├── cache.py          # High-Performance Cache
+│       │   └── error_handling.py # Error Handling
+│       ├── gateway/              # API Gateway Layer
+│       ├── agent/                # Agent Implementations
+│       │   ├── react_agent.py    # ReAct Agent
+│       │   ├── multi_agent.py    # Multi-Agent Team
+│       │   ├── mtc_agent.py      # MTC Agent
+│       │   └── intent_clarifier.py
+│       ├── orchestration/        # Orchestration Engine
+│       ├── sandbox/              # Sandbox Environment
+│       └── locale/               # Internationalization
+│
+├── alonechat-desktop/            # Desktop Application Layer
+│   └── src/
+│       ├── components/
+│       │   ├── welcome-page.tsx  # Codex-Style Welcome Page
+│       │   ├── layout/           # Layout Components
+│       │   ├── agent/            # Agent Chat Components
+│       │   └── ui/               # UI Base Components
+│       ├── stores/               # State Management
+│       └── app/                  # Page Routes
 │
 ├── docs/                         # Documentation
 ├── bugs/                         # Bug Tracking
@@ -92,9 +100,10 @@ AloneChat-workspace/
 | FastAPI | 0.109+ | High-performance async web framework |
 | SQLAlchemy | 2.0 | ORM and database interaction |
 | Alembic | 1.13 | Database migrations |
-| PostgreSQL | 16+ | Relational database |
-| Redis | 7+ | Cache and message queue |
+| SQLite | 3.35+ | Embedded database with WAL mode |
 | WebSockets | 12.0 | Real-time bidirectional communication |
+| bcrypt | 4.1+ | Password hashing (200K iterations) |
+| PyJWT | 2.8+ | JWT token management |
 
 ### Frontend
 
@@ -123,14 +132,12 @@ AloneChat-workspace/
 
 - Python 3.11+
 - Node.js 18+
-- PostgreSQL 16+
-- Redis 7+
 
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/xiaodu-duhongrui/AloneChat-workspace.git
-cd AloneChat-workspace
+git clone https://github.com/AlonechatWorkspace/AloneWork.git
+cd AloneWork
 ```
 
 ### 2. Install Dependencies
@@ -142,27 +149,40 @@ make install
 ### 3. Configure Environment
 
 ```bash
-cp chat-app/backend/.env.example chat-app/backend/.env
 cp agent-framework/.env.example agent-framework/.env
 ```
 
 Edit `.env` files:
 
 ```env
-DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/chatapp
-REDIS_URL=redis://localhost:6379/0
-SECRET_KEY=your-secret-key-change-in-production
-
+# LLM Configuration
 LLM_PROVIDER=deepseek
 LLM_MODEL=deepseek-chat
 LLM_API_KEY=sk-your-api-key
 LLM_API_BASE=https://api.deepseek.com/v1
+
+# Security Configuration
+JWT_SECRET_KEY=your-super-secret-key-min-32-chars
+JWT_EXPIRE_MINUTES=30
+PASSWORD_HASH_ALGORITHM=bcrypt
+MAX_LOGIN_ATTEMPTS=5
+LOCKOUT_DURATION_MINUTES=15
+
+# Rate Limiting
+RATE_LIMIT_RPM=100
+RATE_LIMIT_PER_IP_RPM=20
+RATE_LIMIT_PER_USER_RPM=30
 ```
 
-### 4. Initialize Database
+### 4. Initialize Security Components
 
 ```bash
-make db-init
+cd agent-framework
+python -c "
+from agent_framework.security.config import initialize_security_components
+config = initialize_security_components()
+print('Security components initialized')
+"
 ```
 
 ### 5. Start Services
@@ -183,16 +203,8 @@ cd agent-framework && python gateway_main.py  # http://localhost:18789
 
 ```python
 from agent_framework.agent.react_agent import ReActAgent
-from agent_framework.llm.litellm_provider import LiteLLMProvider
 from agent_framework.tools.registry import ToolRegistry
 from agent_framework.tools.builtin.calculator import CalculatorTool
-from agent_framework.core.base_llm import LLMConfig
-
-llm = LiteLLMProvider(LLMConfig(
-    model="deepseek-chat",
-    api_key="sk-your-api-key",
-    api_base="https://api.deepseek.com/v1",
-))
 
 registry = ToolRegistry()
 registry.register(CalculatorTool())
@@ -236,24 +248,6 @@ agent.collect_clarification_answers({
 })
 
 result = agent.run("Help me write a document")
-```
-
-### Multi-format File Processing
-
-```python
-from agent_framework.services.file_processors import get_processor
-
-# Parse PDF
-processor = get_processor('.pdf')
-text = await processor.to_text('document.pdf')
-
-# Parse Excel
-processor = get_processor('.xlsx')
-text = await processor.to_text('data.xlsx')
-
-# OCR Image
-processor = get_processor('.png')
-text = await processor.to_text('screenshot.png')
 ```
 
 ### Agent Gateway WebSocket
@@ -304,9 +298,44 @@ ws.onmessage = (event) => {
 
 ---
 
+## Security Features
+
+### Authentication System
+
+- **bcrypt Password Hashing**: 12 rounds salt, automatic fallback to PBKDF2 (200K iterations)
+- **Strong Password Policy**: uppercase + lowercase + numbers + minimum 8 characters + weak password blacklist
+- **Token Blacklist**: support for logout, batch revocation, automatic cleanup of expired entries
+- **Account Lockout**: configurable failure count and lockout duration to prevent brute force attacks
+- **Audit Logging**: complete recording of all authentication events (timestamp/IP/User-Agent)
+- **Thread Safety**: RLock protection for UserManager, supporting high-concurrency scenarios
+
+### Rate Limiting
+
+- **Four-Layer Protection**: Global → Per-IP → Per-User → Per-API-Key
+- **Sliding Window Algorithm**: more precise rate control than fixed windows
+- **Token Metering**: TPM (Tokens Per Minute) limits to protect LLM API costs
+- **Auto Cleanup**: periodic cleanup of inactive client states to prevent memory leaks
+- **Admin Interface**: `reset_client()` to manually lift restrictions
+
+### Input Validation
+
+- **SQL Injection Detection**: pattern matching for dangerous SQL statements
+- **XSS Attack Prevention**: HTML sanitization and escaping
+- **Command Injection Detection**: filtering of dangerous characters and commands
+- **Path Traversal Protection**: filename sanitization to prevent directory traversal
+
+### Data Persistence
+
+- **SQLite WAL Mode**: 10x+ improvement in read/write concurrency performance
+- **Auto Migration**: schema versioning with zero-downtime upgrades
+- **FTS5 Full-text Search**: millisecond-level message content retrieval
+- **Audit Logging**: 90-day retention period with automatic cleanup of expired data
+
+---
+
 ## Roadmap
 
-### v0.1.1 (Current)
+### v0.3.1 (Current)
 
 - [x] Real-time chat application
 - [x] ReAct Agent implementation
@@ -321,14 +350,17 @@ ws.onmessage = (event) => {
 - [x] Skills registration system
 - [x] Task decomposition and execution
 - [x] i18n support (English/Chinese)
+- [x] Enterprise security system
+- [x] Data persistence layer
+- [x] Desktop UI redesign (Codex style)
 
-### v0.2.0 (Planned)
+### v0.4.0 (Planned)
 
-- [ ] Frontend Office editors (Word/Excel/PPT)
-- [ ] Local-first file storage (IndexedDB)
-- [ ] Office file format conversion
-- [ ] Agent conversation history persistence
-- [ ] User workspace isolation
+- [ ] PostgreSQL support
+- [ ] Redis cache integration
+- [ ] OpenTelemetry observability
+- [ ] Multi-tenant support design
+- [ ] Commercial version features
 
 ### v1.0.0 (Future)
 
@@ -346,21 +378,11 @@ ws.onmessage = (event) => {
 | [Architecture Design](docs/轻量级Agent框架架构设计.md) | Agent framework design |
 | [Gateway Design](docs/生产级Agent网关架构设计.md) | Gateway architecture |
 | [Gateway Quick Start](agent-framework/GATEWAY_README.md) | Gateway usage guide |
-| [MCP Setup Guide](MCP_MARKETPLACE_SETUP_GUIDE.md) | MCP configuration |
-| [Security Audit](SECURITY_AUDIT_REPORT.md) | Security vulnerabilities |
+| [MCP Setup Guide](docs/guides/MCP_MARKETPLACE_SETUP_GUIDE.md) | MCP configuration |
+| [Security Audit](docs/security/SECURITY_AUDIT_REPORT.md) | Security vulnerabilities |
 | [Bug Tracking](bugs/README.md) | Bug list |
+| [Release Notes](docs/releases/) | Version history |
 | [中文文档](README_CN.md) | Chinese documentation |
-
----
-
-## Security
-
-See [Security Audit Report](SECURITY_AUDIT_REPORT.md) for known vulnerabilities and fixes.
-
-**Important:**
-- Change `SECRET_KEY` in production
-- Don't use default database passwords
-- Never commit API keys to repository
 
 ---
 
@@ -376,14 +398,26 @@ See [Security Audit Report](SECURITY_AUDIT_REPORT.md) for known vulnerabilities 
 
 ## License
 
-[MIT License](LICENSE)
+This project is licensed under the [AloneChatWorkspace Non-Commercial Open Source License](LICENSE).
+
+**Key Terms:**
+- ✓ You CAN use, study, modify, and share this software
+- ✓ You CAN create derivative works for non-commercial purposes
+- ✓ You CAN contribute back to the project
+- ✗ You CANNOT use this software for commercial purposes
+- ✗ You CANNOT create closed-source derivatives
+- ✗ You CANNOT sell or commercially license this software or derivatives
+
+For commercial licensing inquiries, please contact: alonechatworkspace@163.com
 
 ---
 
 <div align="center">
 
-**GitHub**: [https://github.com/xiaodu-duhongrui/AloneChat-workspace.git](https://github.com/xiaodu-duhongrui/AloneChat-workspace.git)
+**GitHub**: [https://github.com/AlonechatWorkspace/AloneWork](https://github.com/AlonechatWorkspace/AloneWork)
 
-Made with ❤️ by AloneChat Team
+**Email**: alonechatworkspace@163.com
+
+Made with ❤️ by AloneWork Team
 
 </div>

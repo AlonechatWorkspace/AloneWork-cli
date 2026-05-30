@@ -1,4 +1,4 @@
-# AloneChat Workspace
+# AloneWork
 
 <div align="center">
 
@@ -20,7 +20,7 @@
 
 ## 简介
 
-**AloneChat Workspace** 是一个集成了实时聊天应用与生产级 AI Agent 框架的全栈协作平台。
+**AloneWork** 是一个集成了实时聊天应用与生产级 AI Agent 框架的全栈协作平台。
 
 ### 核心能力
 
@@ -41,7 +41,7 @@
 ## 项目结构
 
 ```
-AloneChat-workspace/
+AloneWork-workspace/
 ├── chat-app/                     # 实时聊天应用
 │   ├── backend/                  # FastAPI 后端
 │   │   ├── main.py               # 应用入口
@@ -129,8 +129,8 @@ AloneChat-workspace/
 ### 1. 克隆仓库
 
 ```bash
-git clone https://github.com/xiaodu-duhongrui/AloneChat-workspace.git
-cd AloneChat-workspace
+git clone https://github.com/AlonechatWorkspace/AloneWork.git
+cd AloneWork
 ```
 
 ### 2. 安装依赖
@@ -382,8 +382,8 @@ ws.onmessage = (event) => {
 
 <div align="center">
 
-**GitHub**: [https://github.com/xiaodu-duhongrui/AloneChat-workspace.git](https://github.com/xiaodu-duhongrui/AloneChat-workspace.git)
+**GitHub**: [https://github.com/AloneWorkWorkspace/AloneWork](https://github.com/AloneWorkWorkspace/AloneWork)
 
-Made with ❤️ by AloneChat Team
+Made with ❤️ by AloneWork Team
 
 </div>
